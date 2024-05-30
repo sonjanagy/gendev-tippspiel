@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId      Int      @id @default(autoincrement())
+  username    String   @unique
+  email       String   @unique
+  password    String
+  salt        String
+  totalPoints Int      @default(0)
+  updatedAt   DateTime @db.Timestamp
+  createdAt   DateTime @default(now())
+
+  followed IsFriendOf[] @relation(name: "user")
+  follower IsFriendOf[] @relation(name: "friend")
+
+  communities has[]
+
+  bets Betting[]
+}
+
+model IsFriendOf {
+  user           User     @relation(name: "user", fields: [userId], references: [userId])
+  userId         Int
+  friendOfUser   User     @relation(name: "friend", fields: [friendOfUserId], references: [userId])
+  friendOfUserId Int
+  updatedAt      DateTime @db.Timestamp
+  createdAt      DateTime @default(now())
+
+  @@id([friendOfUserId, userId])
+}
+
+model Community {
+  communityId   Int      @id @default(autoincrement())
+  communityname String   @unique
+  updatedAt     DateTime @db.Timestamp
+  createdAt     DateTime @default(now())
+  user          has[]
+}
+
+enum Status {
+  STOP
+  RUNNING
+  END
+  HALFTIME
+  INTERRUPT
+}
+
+enum Phase {
+  FIRST
+  SECOND
+  OVERTIMEFIRST
+  OVERTIMESECOND
+  PENALTY
+}
+
+model Game {
+  gameId        Int       @id @default(autoincrement())
+  scoreHometeam Int
+  scoreAwayteam Int
+  startTime     DateTime  @db.Time
+  date          DateTime  @db.Date
+  beginStart    DateTime? @db.Timestamp
+  beginStop     DateTime? @db.Timestamp
+  state         Status
+  phase         Phase?
+  updatedAt     DateTime  @db.Timestamp
+  createdAt     DateTime  @default(now())
+
+  userbets Betting[]
+
+  hometeam   Team @relation(name: "home", fields: [hometeamId], references: [teamId])
+  hometeamId Int
+
+  awayteam   Team @relation(name: "away", fields: [awayteamId], references: [teamId])
+  awayteamId Int
+}
+
+model Team {
+  teamId  Int    @id @default(autoincrement())
+  country String @unique
+  flag    String
+
+  updatedAt DateTime @db.Timestamp
+  createdAt DateTime @default(now())
+
+  awaygames Game[] @relation(name: "away")
+  homegames Game[] @relation(name: "home")
+}
+
+model has {
+  community   Community @relation(fields: [communityId], references: [communityId])
+  communityId Int
+  user        User      @relation(fields: [userId], references: [userId])
+  userId      Int
+
+  updatedAt DateTime @db.Timestamp
+  createdAt DateTime @default(now())
+
+  @@id([communityId, userId])
+}
+
+model Betting {
+  user   User @relation(fields: [userId], references: [userId])
+  userId Int
+  game   Game @relation(fields: [gameId], references: [gameId])
+  gameId Int
+
+  scoreAwayteam Int
+  scoreHometeam Int
+
+  updatedAt DateTime @db.Timestamp
+  createdAt DateTime @default(now())
+
+  @@id([userId, gameId])
+}

@@ -1,0 +1,21 @@
+.hintergrund{
+    display: flex;
+
+}
+
+.hell{
+    width: calc((100vw - 500px)/2);
+    height: 100vh;
+    background-color: #0171C2;
+}
+
+.dunkel{
+    width: 500px;
+    background-color: #053773;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 30px;
+}
