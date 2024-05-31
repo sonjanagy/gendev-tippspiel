@@ -13,6 +13,8 @@ const User = z.object({
     password: z.string()
 })
 
+export const dynamic = 'force-dynamic'
+
 type User = z.infer<typeof User>;
 
 declare interface ApiResponse {

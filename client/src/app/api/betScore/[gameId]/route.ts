@@ -9,6 +9,7 @@ const BetToInsert = z.object({
     gameId: z.number().or(z.string()).transform(Number)
 })
 
+export const dynamic = 'force-dynamic'
 
 
 type Bet = z.infer<typeof BetToInsert>;

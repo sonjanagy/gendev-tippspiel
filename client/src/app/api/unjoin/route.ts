@@ -4,6 +4,7 @@ import {StatusCodes} from "http-status-codes";
 import {z} from "zod";
 import {verifyJwtToken} from "@/utils/authHelper";
 import {NextRequest, NextResponse} from "next/server";
+import {Prisma} from "@prisma/client";
 
 const Community = z.object({
     communityId: z.number()
@@ -11,6 +12,7 @@ const Community = z.object({
 
 type Community = z.infer<typeof Community>;
 
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
 
@@ -52,6 +54,21 @@ export async function POST(request: NextRequest) {
                 ]
             },
         })
+
+        const updateCom = Prisma.sql`
+    REFRESH MATERIALIZED VIEW rank_communities;`
+        const res3 =  prisma.$queryRaw(updateCom)
+
+        const updateComFr = Prisma.sql`
+    REFRESH MATERIALIZED VIEW rank_communities_friends`
+        const res4 =  prisma.$queryRaw(updateComFr)
+
+        const awaitPromises = []
+        awaitPromises.push(res3)
+        awaitPromises.push(res4)
+
+        const done = await Promise.all(awaitPromises)
+
         return NextResponse.json("Join is deleted.");
     }
 }

@@ -12,6 +12,8 @@ const Team = z.object({
 
 type Team = z.infer<typeof Team>;
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest,{ params } : { params : {teamId: string } }) {
 
     const team_to_get: Team = Team.parse(params);

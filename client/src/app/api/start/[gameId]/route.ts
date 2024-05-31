@@ -7,6 +7,7 @@ import {useState} from "react";
 import {Prisma} from '@prisma/client'
 import { Phase as PHASE }  from '@prisma/client'
 
+export const dynamic = 'force-dynamic'
 
 const Game = z.object({
     gameId: z.number().or(z.string()).transform(Number)
@@ -72,25 +73,9 @@ export async function POST(request: NextRequest, {params}: { params: { gameId: s
             beginStop: null,
             state: "RUNNING",
             phase: phase_to_set,
+            updatedAt: new Date(),
         },
     })
-
-    /*const update = Prisma.sql `UPDATE "Game" g
-        SET phase =
-            CASE
-            WHEN g.phase = ${PHASE.FIRST} THEN ${PHASE.FIRST}
-            WHEN g.phase = 'SECOND' THEN 'OVERTIMEFIRST'
-            WHEN g.phase = 'OVERTIMEFIRST' THEN 'OVERTIMESECOND'
-            WHEN g.phase = 'OVERTIMESECOND' THEN 'PENALTY'
-            WHEN g.phase = 'PENALTY' THEN 'PENALTY'
-            WHEN g.phase IS NULL THEN 'FIRST'
-            ELSE NULL
-            END
-
-            
-            WHERE g."gameId" = ${game_to_update.gameId}`
-
-    const updatequerry = await prisma.$queryRaw(update)*/
 
 
     const query = Prisma.sql`
@@ -136,12 +121,27 @@ export async function POST(request: NextRequest, {params}: { params: { gameId: s
 
     if(getGame.state == "STOP"){
         const res = await prisma.$queryRaw(query)
-        const res2 = await prisma.$queryRaw(updateAll)
-        const res3 = await prisma.$queryRaw(updateCom)
-        const res4 = await prisma.$queryRaw(updateComFr)
+        const res2 =  prisma.$queryRaw(updateAll)
+        const res3 =  prisma.$queryRaw(updateCom)
+        const res4 =  prisma.$queryRaw(updateComFr)
+
+        const awaitPromises = []
+        awaitPromises.push(res2)
+        awaitPromises.push(res3)
+        awaitPromises.push(res4)
+
+        const done = await Promise.all(awaitPromises)
     }
 
 
+    const updateGameUpdate = await prisma.game.update({
+        where: {
+            gameId: game_to_update.gameId,
+        },
+        data: {
+            updatedAt: new Date(),
+        },
+    })
 
     if(updateGame === null){
         return APIErrorResponse.return_error("Something went wrong", StatusCodes.BAD_REQUEST);

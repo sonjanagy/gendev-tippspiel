@@ -72,7 +72,7 @@ export default function Page() {
         <>
             <div style={{display: 'flex', alignContent: 'center', flexDirection: 'column'}}>
                 {endResult.filter((a) =>  a[0].date > new Date() || a[0].date.getDate() === new Date().getDate()).map(resultlist =>
-                        <div style={{ backgroundColor: "#E9E9E9", padding: "10px", margin: "10px"}}>
+                        <div key={resultlist[0].date.toLocaleTimeString()} style={{ backgroundColor: "#E9E9E9", padding: "10px", margin: "10px"}}>
                             <b style={{color: "#0171C2", width: "100%"}}> {resultlist[0].date.toDateString()} </b>
                             <div style={{display: 'flex', flexDirection: 'row', flexFlow: 'row wrap'}}>
                                 {resultlist.map(game => <TippBox key={game.gameId} {...game} />)}

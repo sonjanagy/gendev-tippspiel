@@ -5,6 +5,8 @@ import prisma from "@/utils/client";
 import {APIErrorResponse} from "@/utils/APIErrorResponse";
 import {StatusCodes} from "http-status-codes";
 
+export const dynamic = 'force-dynamic'
+
 const Game = z.object({
     hometeam: z.string(),
     awayteam: z.string(),

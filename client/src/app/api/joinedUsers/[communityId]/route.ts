@@ -9,6 +9,7 @@ const aktCommunity = z.object({
 
 type aktCommunity = z.infer<typeof aktCommunity>;
 
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest,{ params } : { params : {communityId: string } }) {
 

@@ -28,14 +28,47 @@ export default function Page() {
                     "beginStart":  new Date(prev.beginStart),
                     "beginStop":  new Date(prev.beginStop),
                 })));
-
-
             }
         }
         getGames();
 
     }, []);
 
+    useEffect(() => {
+        const getTodaysGames = async () => {
+            const response = await fetch('/api/gamesToday');
+
+            if (response !== null && response.body !== null) {
+                const games_as_json: GameQueried[] = await response.json();
+
+                const lastUpdated = games_as_json.map(prev => ( {
+                    "gameId": prev.gameId,
+                    "updatedAt": new Date(prev.updatedAt)
+                }))
+
+                const id = setInterval(async () => {
+                    const newFetch = await fetch('/api/gamesToday');
+                    const new_games_as_json: GameQueried[] = await newFetch.json();
+                    const new_lastUpdated = new_games_as_json.map(prev => ( {
+                        "gameId": prev.gameId,
+                        "updatedAt": new Date(prev.updatedAt)
+                    }))
+
+                    if(JSON.stringify(new_lastUpdated) !== JSON.stringify(lastUpdated)){
+                        window.location.reload();
+                    }
+
+
+                }, 5000);
+
+                return () => clearInterval(id);
+            }
+
+
+
+        }
+        getTodaysGames()
+    }, []);
 
     useEffect(() => {
         let resulttemp = [];
@@ -79,7 +112,7 @@ export default function Page() {
             <RegisterGame></RegisterGame>
             <div style={{display: 'flex', alignContent: 'center', flexDirection: 'column'}}>
                 {endResult.filter((a) =>  a[0].date > new Date() || a[0].date.getDate() === new Date().getDate()).map(resultlist =>
-                        <div
+                        <div key={resultlist[0].date.toLocaleTimeString()}
                             style={{ backgroundColor: "#E9E9E9", padding: "10px", margin: "10px" , justifyContent: 'center'}}>
                             <b style={{color: "#0171C2", width: "100%"}}> {resultlist[0].date.toDateString()} </b>
                             <div style={{display: 'flex', flexDirection: 'row', flexFlow: 'row wrap',

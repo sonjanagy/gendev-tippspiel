@@ -10,6 +10,7 @@ const Game = z.object({
 
 type Game = z.infer<typeof Game>;
 
+export const dynamic = 'force-dynamic'
 export async function POST(request: NextRequest, {params}: { params: { gameId: string } }) {
 
     const game_to_update: Game = Game.parse(params);
@@ -32,9 +33,12 @@ export async function POST(request: NextRequest, {params}: { params: { gameId: s
         data: {
             beginStart: null,
             beginStop: new Date(),
-            state: "HALFTIME"
+            state: "HALFTIME",
+            updatedAt: new Date(),
         },
     })
+
+
 
     if(updateGame === null){
         return APIErrorResponse.return_error("Something went wrong", StatusCodes.BAD_REQUEST);

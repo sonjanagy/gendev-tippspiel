@@ -12,6 +12,7 @@ import {styled} from "@mui/material/styles";
 import Dialog from "@mui/material/Dialog";
 import {Community as CommunityType} from "@prisma/client";
 import {getCookie} from "cookies-next";
+import {useRouter} from "next/navigation";
 
 const BootstrapDialog = styled(Dialog)(({theme}) => ({
     '& .MuiDialogContent-root': {
@@ -34,6 +35,7 @@ export const CreateCommunity = () => {
     const [name, setName] = useState<string>("");
     const [usersCommunities, setUsersCommunities] = useState<CommunityQuerried[]>([]);
     const [communities, setCommunities] = useState<CommunityQuerried[]>([]);
+    const router = useRouter();
 
     useEffect(() => {
         const getInitial = async () => {
@@ -87,9 +89,9 @@ export const CreateCommunity = () => {
         }
         setError("")
         handleClose()
+        router.push("/dashboard")
     };
 
-    //usersCommunities.length >=5
 
     const handleClickOpen = () => {
         setOpen(true);

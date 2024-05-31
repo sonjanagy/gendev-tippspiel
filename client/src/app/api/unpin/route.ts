@@ -4,6 +4,7 @@ import {StatusCodes} from "http-status-codes";
 import {z} from "zod";
 import {verifyJwtToken} from "@/utils/authHelper";
 import {NextRequest, NextResponse} from "next/server";
+import {Prisma} from "@prisma/client";
 
 const Friend = z.object({
     friendId: z.number()
@@ -11,6 +12,7 @@ const Friend = z.object({
 
 type Friend = z.infer<typeof Friend>;
 
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
 
@@ -53,6 +55,12 @@ export async function POST(request: NextRequest) {
                 ]
             },
         })
+
+        const updateComFr = Prisma.sql`
+    REFRESH MATERIALIZED VIEW rank_communities_friends`
+        const res4 = await prisma.$queryRaw(updateComFr)
+
+
         return NextResponse.json("Friendship is deleted.");
     }
 }

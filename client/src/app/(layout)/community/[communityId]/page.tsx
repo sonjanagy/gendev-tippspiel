@@ -22,6 +22,7 @@ import styles from "@/app/(layout)/layout.module.css";
 import InputBase from "@mui/material/InputBase";
 import IconButton from "@mui/material/IconButton";
 import SearchIcon from "@mui/icons-material/Search";
+import {GameQueried} from "@/types/game";
 
 interface Users {
     userId: number,
@@ -75,7 +76,7 @@ export default function Community({params}: { params: { communityId: string } })
             const community: AktCommunityQueried = await communityRes.json();
 
             if (community === null) {
-                //todo hier einfügen zu comunitygibtesnicht seite
+                router.push("/noCommunity")
                 return
             } else {
                 setCommunityName(community.communityname)
@@ -128,6 +129,65 @@ export default function Community({params}: { params: { communityId: string } })
 
     }, [])
 
+    useEffect(() => {
+        const getTodaysGames = async () => {
+            const response = await fetch('/api/gamesToday');
+
+            if (response !== null && response.body !== null) {
+                const games_as_json: GameQueried[] = await response.json();
+
+                const lastUpdated = games_as_json.map(prev => ( {
+                    "gameId": prev.gameId,
+                    "updatedAt": new Date(prev.updatedAt)
+                }))
+
+                const id = setInterval(async () => {
+                    const newFetch = await fetch('/api/gamesToday');
+                    const new_games_as_json: GameQueried[] = await newFetch.json();
+                    const new_lastUpdated = new_games_as_json.map(prev => ( {
+                        "gameId": prev.gameId,
+                        "updatedAt": new Date(prev.updatedAt)
+                    }))
+
+                    if(JSON.stringify(new_lastUpdated) !== JSON.stringify(lastUpdated)){
+                        window.location.reload();
+                    }
+
+
+                }, 5000);
+
+                return () => clearInterval(id);
+            }
+
+
+
+        }
+        getTodaysGames()
+    }, []);
+
+
+    useEffect(() => {
+        const getJoinedUsers = async () => {
+            const userRes = await fetch(`/api/communitycount/${Number(params.communityId)}`)
+
+            const count_users_before = await userRes.json();
+
+
+                const id = setInterval(async () => {
+                    const newFetch = await fetch(`/api/communitycount/${Number(params.communityId)}`)
+                    const count_users_after = await newFetch.json();
+
+                    if(count_users_after !== count_users_before){
+                        window.location.reload();
+                    }
+
+
+                }, 5000);
+
+                return () => clearInterval(id);
+        }
+        getJoinedUsers()
+    }, []);
 
     const getRows = async () => {
         const tableUsers = await fetch(`/api/initialCommunityTable/${Number(params.communityId)}`);

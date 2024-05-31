@@ -4,5 +4,5 @@
 
 //POST http://localhost:3000/api/createAllGames
 //GET http://localhost:3000/api/firstThree
-POST http://localhost:3000/api/updatePoints
+GET http://localhost:3000/api/gamesToday
 Content-Type: application/json

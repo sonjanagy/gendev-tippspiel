@@ -10,6 +10,7 @@ const Game = z.object({
 
 type Game = z.infer<typeof Game>;
 
+export const dynamic = 'force-dynamic'
 export async function POST(request: NextRequest, {params}: { params: { gameId: string } }) {
 
     const game_to_update: Game = Game.parse(params);
@@ -20,7 +21,8 @@ export async function POST(request: NextRequest, {params}: { params: { gameId: s
         },
         data: {
             beginStop: new Date(),
-            state: "INTERRUPT"
+            state: "INTERRUPT",
+            updatedAt: new Date()
         },
     })
 

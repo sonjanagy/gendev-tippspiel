@@ -8,6 +8,7 @@ import {getCookie} from "cookies-next";
 import {Community} from "@prisma/client";
 import {useRouter} from "next/navigation";
 import {Button} from "@mui/material";
+import {GameWithDates, GameQueried, TeamQueried} from "@/types/game";
 
 
 interface Users {
@@ -22,7 +23,6 @@ interface CommunityQuerried {
     communityId: number
     community: Community,
 }
-
 
 export default function Dashboard() {
 
@@ -57,6 +57,43 @@ export default function Dashboard() {
         }
         getUsers()
     },[])
+
+
+    useEffect(() => {
+        const getTodaysGames = async () => {
+            const response = await fetch('/api/gamesToday');
+
+            if (response !== null && response.body !== null) {
+                const games_as_json: GameQueried[] = await response.json();
+
+                const lastUpdated = games_as_json.map(prev => ( {
+                    "gameId": prev.gameId,
+                    "updatedAt": new Date(prev.updatedAt)
+                }))
+
+                const id = setInterval(async () => {
+                    const newFetch = await fetch('/api/gamesToday');
+                    const new_games_as_json: GameQueried[] = await newFetch.json();
+                    const new_lastUpdated = new_games_as_json.map(prev => ( {
+                        "gameId": prev.gameId,
+                        "updatedAt": new Date(prev.updatedAt)
+                    }))
+
+                    if(JSON.stringify(new_lastUpdated) !== JSON.stringify(lastUpdated)){
+                        window.location.reload();
+                    }
+
+
+                }, 5000);
+
+                return () => clearInterval(id);
+            }
+
+
+
+        }
+        getTodaysGames()
+    }, []);
 
     const handleClickCommunity = async (id: number) => {
         router.push("/community/" + id);

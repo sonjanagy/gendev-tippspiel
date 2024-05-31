@@ -1,17 +1,17 @@
 import prisma from "@/utils/client";
 import {APIErrorResponse} from "@/utils/APIErrorResponse";
 import {StatusCodes} from "http-status-codes";
-import {NextResponse} from "next/server";
+import {NextRequest, NextResponse} from "next/server";
 
 export const dynamic = 'force-dynamic'
-export async function GET(request: Request) {
+
+export async function GET(request: NextRequest) {
 
     const games = await prisma.game.findMany({
-        relationLoadStrategy: 'join',
-        include: {
-            hometeam: true,
-            awayteam: true
-        },
+        where: {
+            date: new Date(),
+        }
+
     });
 
     if (games === null) {

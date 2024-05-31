@@ -5,6 +5,8 @@ import {APIErrorResponse} from "@/utils/APIErrorResponse";
 import {StatusCodes} from "http-status-codes";
 import {Prisma} from '@prisma/client'
 
+export const dynamic = 'force-dynamic'
+
 const aktGame = z.object({
     gameId: z.number().or(z.string()).transform(Number)
 })
@@ -21,6 +23,20 @@ export async function POST(request: NextRequest,{ params } : { params : {gameId:
         }})
 
     if(game == null){
+        return APIErrorResponse.return_error("Something went wrong", StatusCodes.BAD_REQUEST);
+    }
+
+    const updateScore = await prisma.game.update({
+        where: {
+            gameId: game_to_load.gameId,
+        },
+        data: {
+            scoreAwayteam: { increment: 1 },
+            updatedAt: new Date()
+        },
+    })
+
+    if(updateScore == null) {
         return APIErrorResponse.return_error("Something went wrong", StatusCodes.BAD_REQUEST);
     }
 
@@ -118,17 +134,23 @@ export async function POST(request: NextRequest,{ params } : { params : {gameId:
         REFRESH MATERIALIZED VIEW rank_communities_friends`
 
     const res = await prisma.$queryRaw(query)
-    //const res2 = await prisma.$queryRaw(updateAll)
-    //const res3 = await prisma.$queryRaw(updateCom)
-    //const res4 = await prisma.$queryRaw(updateComFr)
+    const res2 =  prisma.$queryRaw(updateAll)
+    const res3 =  prisma.$queryRaw(updateCom)
+    const res4 =  prisma.$queryRaw(updateComFr)
 
+    const awaitPromises = []
+    awaitPromises.push(res2)
+    awaitPromises.push(res3)
+    awaitPromises.push(res4)
 
-    const updateScore = await prisma.game.update({
+    const done = await Promise.all(awaitPromises)
+
+    const updateGameUpdate = await prisma.game.update({
         where: {
             gameId: game_to_load.gameId,
         },
         data: {
-            scoreAwayteam: { increment: 1 }
+            updatedAt: new Date(),
         },
     })
 

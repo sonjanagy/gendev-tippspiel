@@ -122,10 +122,11 @@ export default function Layout({
                     {isAdmin && <Button onClick={() => handleClickAdmin()} sx={{color: "white"}}>to admin Page</Button>}
                 </div>
             </header>
-            <nav className={styles.navbar}>
+            <nav className={styles.navbar}  style={{display: "flex", alignItems: "center", flexDirection: "column"}}>
                 <CommunitiesNavigation></CommunitiesNavigation>
                 <CreateCommunity></CreateCommunity>
             </nav>
+
             <div className={styles.mainbar}>
                 {children}
             </div>

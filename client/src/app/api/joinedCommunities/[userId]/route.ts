@@ -8,7 +8,7 @@ const aktUser = z.object({
 
 type aktUser = z.infer<typeof aktUser>;
 
-
+export const dynamic = 'force-dynamic'
 export async function GET(request: NextRequest,{ params } : { params : {userId: string } }) {
 
     const user_to_load: aktUser = aktUser.parse(params);

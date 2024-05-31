@@ -8,7 +8,7 @@ declare interface ApiResponse {
 }
 
 const authRoutes = ['/dashboard/*', '/admin/*', '/api/*'];
-const whitelistRoutes = ['/api/login', '/api/register', '/api/createManyUsers', '/api/createAllTeams', '/api/createAllGames', '/api/lastUser'];
+const whitelistRoutes = ['/api/login', '/api/register', '/api/createManyUsers', '/api/createAllTeams', '/api/createAllGames', '/api/gamesToday'];
 
 // Function to match the * wildcard character
 function matchesWildcard(path: string, pattern: string): boolean {

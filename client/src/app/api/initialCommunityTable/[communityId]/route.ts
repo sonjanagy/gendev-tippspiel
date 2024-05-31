@@ -12,6 +12,7 @@ const Community = z.object({
 
 type Community = z.infer<typeof Community>;
 
+export const dynamic = 'force-dynamic'
 interface UserWithRank {
     userId: number,
     username: string,

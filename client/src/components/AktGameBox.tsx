@@ -91,7 +91,6 @@ export const AktGameBox = (props: GameQueried) => {
                                 const totalSeconds = Math.floor(time / 1000);
                                 const totalMinutes = Math.floor(totalSeconds / 60);
                                 const totalHours = Math.floor(totalMinutes / 60);
-                                console.log(Math.round((time / 1000) / 60))
 
                                 const res = totalHours * 60 + totalMinutes;
                                 setDisplayedTime(res.toString())
@@ -102,7 +101,6 @@ export const AktGameBox = (props: GameQueried) => {
                                 const totalSeconds = Math.floor(time / 1000);
                                 const totalMinutes = Math.floor(totalSeconds / 60);
                                 const totalHours = Math.floor(totalMinutes / 60);
-                                console.log(Math.round((time / 1000) / 60))
 
                                 const res = 45 + totalHours * 60 + totalMinutes;
                                 setDisplayedTime(res.toString())
@@ -113,7 +111,6 @@ export const AktGameBox = (props: GameQueried) => {
                                 const totalSeconds = Math.floor(time / 1000);
                                 const totalMinutes = Math.floor(totalSeconds / 60);
                                 const totalHours = Math.floor(totalMinutes / 60);
-                                console.log(Math.round((time / 1000) / 60))
 
                                 const res = 90 + totalHours * 60 + totalMinutes;
                                 setDisplayedTime(res.toString())
@@ -124,22 +121,17 @@ export const AktGameBox = (props: GameQueried) => {
                                 const totalSeconds = Math.floor(time / 1000);
                                 const totalMinutes = Math.floor(totalSeconds / 60);
                                 const totalHours = Math.floor(totalMinutes / 60);
-                                console.log(Math.round((time / 1000) / 60))
 
                                 const res = 105 + totalHours * 60 + totalMinutes;
                                 setDisplayedTime(res.toString())
                                 break;
                             }
                             case "PENALTY": {
-                                console.log(
-                                    "hier"
-                                )
                                 setDisplayedTime("Penalty")
                                 break;
                             }
                             default: {
-                                console.log("_________")
-                                setDisplayedTime("errorrrr")
+                                setDisplayedTime("error")
                                 break;
                             }
                         }
@@ -151,8 +143,24 @@ export const AktGameBox = (props: GameQueried) => {
 
         }
         getTeam();
-        console.log(displayedTime);
     },[])
+
+    useEffect(() => {
+        const getClock = async () => {
+
+            const id = setInterval(async () => {
+                if(state === "RUNNING" && phase !== "PENALTY"){
+                    const akttime = Number(displayedTime) +1
+                    setDisplayedTime(akttime.toString());
+                }
+
+            }, 60000);
+
+            return () => clearInterval(id);
+    }
+    getClock()
+    }, [displayedTime]);
+
 
     useEffect(() => {
         const getInitial = async () => {

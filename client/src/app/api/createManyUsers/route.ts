@@ -1,6 +1,8 @@
 import prisma from "@/utils/client";
 import * as argon2 from "argon2";
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: Request){
 
     for (let i = 1; i < 2000001; i++) {

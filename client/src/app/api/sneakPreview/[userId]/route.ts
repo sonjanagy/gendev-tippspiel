@@ -11,6 +11,8 @@ const aktUser = z.object({
 
 type aktUser = z.infer<typeof aktUser>;
 
+export const dynamic = 'force-dynamic'
+
 interface UserWithRank {
     userId: number,
     username: string,
@@ -24,42 +26,43 @@ export async function GET(request: NextRequest, {params}: { params: { gameId: st
 
     const userCount = await prisma.user.count()
 
-    const query = Prisma.sql`
-        with "current_user" as (SELECT * FROM rank_all r WHERE r."userId" = ${user_to_load.userId})
-        SELECT final."userId", final.username, final."totalPoints", final.rank
-        FROM (SELECT *
-              FROM (SELECT * FROM rank_all r ORDER BY r.rank, r."createdAt" LIMIT 6) as "r"
-              UNION ALL
-              SELECT *
-              FROM (SELECT *
-                    FROM rank_all r
-                    WHERE (r.rank = (SELECT rank FROM "current_user")
-                               AND r."createdAt" <= (SELECT "createdAt" FROM "current_user")
-                        OR
-                           r.rank < (SELECT rank FROM "current_user"))
-                      AND r."userId" <> ${user_to_load.userId}
-                    ORDER BY rank DESC , "createdAt" DESC
-                    LIMIT 1) as "r*"
-              UNION ALL
-              SELECT *
-              FROM rank_all r
-              WHERE r."userId" = ${user_to_load.userId}
-              UNION ALL
-              SELECT *
-              FROM (SELECT *
-                    FROM rank_all r
-                    WHERE (r.rank = (SELECT rank FROM "current_user")
-                               AND r."createdAt" >= (SELECT "createdAt" FROM "current_user")
-                        OR
-                           r.rank > (SELECT rank FROM "current_user"))
-                      AND r."userId" <> ${user_to_load.userId}
-                    ORDER BY rank, "createdAt"
-                    LIMIT 1) as "r*"
-              UNION ALL
-              SELECT *
-              FROM (SELECT * FROM rank_all h ORDER BY h.rank DESC, h."createdAt" DESC LIMIT 4) as "temp"
-             ) as "final"
-        ORDER BY final.rank, final."createdAt"`
+    const query = Prisma.sql`with "current_user" as (SELECT DISTINCT r."userId", r."createdAt", r.rank FROM rank_all r WHERE r."userId" = 2)
+                             SELECT final."userId", final.username, final."totalPoints", final.rank
+                             FROM (SELECT *
+                                   FROM (SELECT DISTINCT r."userId", r."createdAt", r.rank, r."totalPoints", r.username FROM rank_all r ORDER BY r.rank, r."createdAt" LIMIT 6) as "r"
+                                   UNION ALL
+                                   SELECT "r*"."userId", "r*"."createdAt", "r*".rank, "r*"."totalPoints", "r*".username
+                                   FROM (SELECT *
+                                         FROM rank_all r
+                                         WHERE (r.rank = (SELECT rank FROM "current_user")
+                                                    AND r."createdAt" <= (SELECT "createdAt" FROM "current_user")
+                                             OR
+                                                r.rank < (SELECT rank FROM "current_user"))
+                                           AND r."userId" <> 2
+                                         ORDER BY rank DESC , "createdAt" DESC
+                                             LIMIT 1) as "r*"
+                                   UNION ALL
+                                   SELECT *
+                                   FROM (SELECT r."userId", r."createdAt", r.rank, r."totalPoints", r.username
+                                         FROM rank_all r
+                                         WHERE r."userId" = 2
+                                             LIMIT 1) as "r*"
+                                   UNION ALL
+                                   SELECT "r*"."userId", "r*"."createdAt", "r*".rank, "r*"."totalPoints", "r*".username
+                                   FROM (SELECT *
+                                         FROM rank_all r
+                                         WHERE (r.rank = (SELECT rank FROM "current_user")
+                                                    AND r."createdAt" >= (SELECT "createdAt" FROM "current_user")
+                                             OR
+                                                r.rank > (SELECT rank FROM "current_user"))
+                                           AND r."userId" <> 2
+                                         ORDER BY rank, "createdAt"
+                                             LIMIT 1) as "r*"
+                                   UNION ALL
+                                   SELECT "temp"."userId", "temp"."createdAt", "temp".rank, "temp"."totalPoints", "temp".username
+                                   FROM (SELECT * FROM rank_all h ORDER BY h.rank DESC, h."createdAt" DESC LIMIT 4) as "temp"
+                                  ) as "final"
+                             ORDER BY final.rank, final."createdAt"`
 
     const result_with_bigint: UserWithRank[] = await prisma.$queryRaw(query)
     console.log(result_with_bigint)

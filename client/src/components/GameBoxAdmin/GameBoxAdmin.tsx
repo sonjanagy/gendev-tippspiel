@@ -104,6 +104,10 @@ export const GameBoxAdmin = (props: GameQueried) => {
                                 setDisplayedTime(res.toString())
                                 break;
                             }
+                            case "PENALTY": {
+                                setDisplayedTime("Penalty")
+                                break;
+                            }
                             default: {
                                 setDisplayedTime("error")
                                 break;
@@ -118,6 +122,21 @@ export const GameBoxAdmin = (props: GameQueried) => {
         getInitial()
     }, []);
 
+    useEffect(() => {
+        const getClock = async () => {
+
+            const id = setInterval(async () => {
+                if(state === "RUNNING" && phase !== "PENALTY"){
+                    const akttime = Number(displayedTime) +1
+                    setDisplayedTime(akttime.toString());
+                }
+            }, 60000);
+
+            return () => clearInterval(id);
+        }
+        getClock()
+    }, [displayedTime]);
+    
     const handleClickStart = async () => {
         if(state === "HALFTIME" || state === "STOP" || state === "INTERRUPT"){
             const response = await fetch(`/api/start/${gameId}`, {method: "POST"});

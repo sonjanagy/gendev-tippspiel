@@ -8,7 +8,7 @@ const Community = z.object({
 
 type Community = z.infer<typeof Community>;
 
-
+export const dynamic = 'force-dynamic'
 export async function GET(request: NextRequest,{ params } : { params : {communityId: string } }) {
 
 

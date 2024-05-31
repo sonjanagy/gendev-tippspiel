@@ -5,7 +5,7 @@ import {StatusCodes} from "http-status-codes";
 import * as argon2 from "argon2";
 import {NextResponse} from "next/server";
 
-
+export const dynamic = 'force-dynamic'
 export async function GET(request: Request) {
 
     const teams = await prisma.team.findMany();

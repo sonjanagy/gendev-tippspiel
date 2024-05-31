@@ -11,6 +11,8 @@ const BetToInsert = z.object({
     scoreAwayTeam: z.number(),
 })
 
+export const dynamic = 'force-dynamic'
+
 type Bet = z.infer<typeof BetToInsert>;
 
 export async function POST(request: NextRequest) {
